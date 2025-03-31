@@ -10,6 +10,7 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import Transactions from "./pages/Transactions";
 import NotFound from "./pages/NotFound";
+import Poster from "./pages/Poster";
 import { useState, createContext } from "react";
 
 export interface User {
@@ -48,6 +49,7 @@ const App = () => {
               <Route path="/register" element={<Register />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/transactions" element={<Transactions />} />
+              <Route path="/poster" element={<Poster />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
