@@ -1,8 +1,9 @@
+
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
-import { BarChart4, CreditCard, ShieldCheck, TrendingUp, FileDown } from "lucide-react";
+import { BarChart4, CreditCard, ShieldCheck, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const Index = () => {
@@ -36,6 +37,7 @@ const Index = () => {
     },
   ];
 
+  // Intersection Observer for animations
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -61,6 +63,7 @@ const Index = () => {
     <>
       <Navbar />
       <main className="flex min-h-screen flex-col">
+        {/* Hero Section */}
         <section className="relative pt-28 pb-20 lg:pt-36 lg:pb-28 px-6">
           <div className="absolute inset-0 -z-10 background-gradient overflow-hidden">
             <div className="absolute -top-[40%] -right-[40%] w-[80%] h-[80%] rounded-full bg-blue-400/20 blur-[120px]" />
@@ -96,15 +99,6 @@ const Index = () => {
                 >
                   Learn More
                 </Button>
-                <Button 
-                  variant="secondary" 
-                  onClick={() => navigate("/poster")}
-                  className="border-blue-300 text-blue-700 font-medium px-8 py-6 rounded-lg flex items-center"
-                  size="lg"
-                >
-                  <FileDown className="mr-2 h-5 w-5" />
-                  View Data Storage Poster
-                </Button>
               </div>
             </div>
 
@@ -122,6 +116,7 @@ const Index = () => {
           </div>
         </section>
 
+        {/* Features */}
         <section ref={featuresRef} className="py-20 px-6 bg-gradient-to-b from-white to-gray-50">
           <div className="max-w-7xl mx-auto">
             <div className="text-center max-w-3xl mx-auto mb-16 animate-on-scroll opacity-0 transition-all duration-700">
@@ -152,6 +147,7 @@ const Index = () => {
           </div>
         </section>
 
+        {/* CTA Section */}
         <section className="py-20 px-6 bg-gray-900 text-white">
           <div className="max-w-7xl mx-auto text-center animate-on-scroll opacity-0 transition-all duration-700">
             <h2 className="text-3xl font-bold mb-6">Ready to Transform Your Finances?</h2>
@@ -168,6 +164,7 @@ const Index = () => {
           </div>
         </section>
 
+        {/* Footer */}
         <footer className="py-12 px-6 bg-gray-950 text-gray-400">
           <div className="max-w-7xl mx-auto">
             <div className="flex flex-col md:flex-row justify-between items-center">
