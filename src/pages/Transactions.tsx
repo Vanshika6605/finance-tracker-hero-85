@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "@/App";
 import Navbar from "@/components/Navbar";
 import TransactionList, { Transaction } from "@/components/TransactionList";
+import AddTransactionModal from "@/components/AddTransactionModal";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { RefreshCw, Filter, Download, Plus } from "lucide-react";
@@ -22,6 +23,7 @@ const Transactions = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [timeFilter, setTimeFilter] = useState<"all" | "week" | "month" | "year">("month");
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   useEffect(() => {
     // Redirect to login if not authenticated
@@ -111,6 +113,10 @@ const Transactions = () => {
   
   const handleExport = () => {
     toast.success("Transactions exported successfully!");
+  };
+  
+  const handleAddTransaction = (newTransaction: Transaction) => {
+    setTransactions(prevTransactions => [newTransaction, ...prevTransactions]);
   };
   
   // Calculate transaction stats
@@ -208,6 +214,7 @@ const Transactions = () => {
                 <Button
                   size="sm"
                   className="flex items-center gap-1"
+                  onClick={() => setIsAddModalOpen(true)}
                 >
                   <Plus className="h-4 w-4" />
                   Add Transaction
@@ -274,6 +281,13 @@ const Transactions = () => {
           </div>
         </div>
       </main>
+      
+      {/* Add Transaction Modal */}
+      <AddTransactionModal 
+        isOpen={isAddModalOpen} 
+        onClose={() => setIsAddModalOpen(false)} 
+        onAddTransaction={handleAddTransaction}
+      />
     </>
   );
 };
