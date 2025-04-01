@@ -1,3 +1,4 @@
+
 import { useContext, useState } from "react";
 import { AuthContext } from "@/App";
 import Navbar from "@/components/Navbar";
@@ -102,28 +103,31 @@ const Profile = () => {
                 </div>
                 
                 <div className="space-y-1 mt-4">
-                  <TabsList className="w-full flex flex-col h-auto bg-transparent space-y-1">
-                    <TabsTrigger value="profile" className="w-full justify-start px-2">
-                      <User className="mr-2 h-4 w-4" />
-                      Profile
-                    </TabsTrigger>
-                    <TabsTrigger value="accounts" className="w-full justify-start px-2">
-                      <CreditCard className="mr-2 h-4 w-4" />
-                      Connected Accounts
-                    </TabsTrigger>
-                    <TabsTrigger value="security" className="w-full justify-start px-2">
-                      <Shield className="mr-2 h-4 w-4" />
-                      Security
-                    </TabsTrigger>
-                    <TabsTrigger value="notifications" className="w-full justify-start px-2">
-                      <BellRing className="mr-2 h-4 w-4" />
-                      Notifications
-                    </TabsTrigger>
-                    <TabsTrigger value="settings" className="w-full justify-start px-2">
-                      <Settings className="mr-2 h-4 w-4" />
-                      Preferences
-                    </TabsTrigger>
-                  </TabsList>
+                  {/* Wrap the TabsList in a Tabs component with the same defaultValue as the main Tabs */}
+                  <Tabs defaultValue="profile" orientation="vertical" className="w-full">
+                    <TabsList className="w-full flex flex-col h-auto bg-transparent space-y-1">
+                      <TabsTrigger value="profile" className="w-full justify-start px-2">
+                        <User className="mr-2 h-4 w-4" />
+                        Profile
+                      </TabsTrigger>
+                      <TabsTrigger value="accounts" className="w-full justify-start px-2">
+                        <CreditCard className="mr-2 h-4 w-4" />
+                        Connected Accounts
+                      </TabsTrigger>
+                      <TabsTrigger value="security" className="w-full justify-start px-2">
+                        <Shield className="mr-2 h-4 w-4" />
+                        Security
+                      </TabsTrigger>
+                      <TabsTrigger value="notifications" className="w-full justify-start px-2">
+                        <BellRing className="mr-2 h-4 w-4" />
+                        Notifications
+                      </TabsTrigger>
+                      <TabsTrigger value="settings" className="w-full justify-start px-2">
+                        <Settings className="mr-2 h-4 w-4" />
+                        Settings
+                      </TabsTrigger>
+                    </TabsList>
+                  </Tabs>
                 </div>
               </CardContent>
             </Card>
