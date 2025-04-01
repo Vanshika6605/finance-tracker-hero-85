@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/card";
 import { toast } from "sonner";
 
+// Define the props for the PlaidLink component
 interface PlaidLinkProps {
   onSuccess: (public_token: string, metadata: any) => void;
   className?: string;
@@ -19,17 +20,37 @@ interface PlaidLinkProps {
 
 const PlaidLink = ({ onSuccess, className }: PlaidLinkProps) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [linkToken, setLinkToken] = useState<string | null>(null);
 
-  // This is a mock function to simulate opening the Plaid Link
-  // In a real implementation, you would use the Plaid Link SDK
-  const openPlaidLink = () => {
-    setIsLoading(true);
-    
-    // Simulate a delay before "connecting" to Plaid
-    setTimeout(() => {
-      setIsLoading(false);
+  // Function to get a link token from our mock server
+  const generateLinkToken = async () => {
+    try {
+      setIsLoading(true);
       
-      // Mock success response
+      // In a real implementation, this would be an API call to your backend
+      // that would then call Plaid's create_link_token endpoint
+      setTimeout(() => {
+        // Mock link token - in reality this would come from your server
+        const mockLinkToken = "link-sandbox-" + Math.random().toString(36).substring(2, 15);
+        setLinkToken(mockLinkToken);
+        
+        // Simulate opening Plaid Link after getting the token
+        openMockPlaidLink(mockLinkToken);
+      }, 1000);
+    } catch (error) {
+      console.error("Error generating link token:", error);
+      toast.error("Failed to connect to bank. Please try again.");
+      setIsLoading(false);
+    }
+  };
+
+  // Function to simulate opening Plaid Link
+  const openMockPlaidLink = (token: string) => {
+    console.log("Opening Plaid Link with token:", token);
+    
+    // Simulate a delay for "bank selection and login"
+    setTimeout(() => {
+      // Mock user selecting and authenticating with a bank
       const mockPublicToken = "public-sandbox-" + Math.random().toString(36).substring(2, 15);
       const mockMetadata = {
         institution: { name: "Chase", institution_id: "ins_1" },
@@ -40,8 +61,11 @@ const PlaidLink = ({ onSuccess, className }: PlaidLinkProps) => {
         ]
       };
       
+      // In a real implementation, this success callback would be triggered by the Plaid Link SDK
       onSuccess(mockPublicToken, mockMetadata);
       toast.success("Connected to Chase Bank successfully!");
+      setIsLoading(false);
+      setLinkToken(null);
     }, 2000);
   };
 
@@ -90,7 +114,7 @@ const PlaidLink = ({ onSuccess, className }: PlaidLinkProps) => {
       </CardContent>
       <CardFooter>
         <Button 
-          onClick={openPlaidLink} 
+          onClick={generateLinkToken} 
           className="w-full font-medium"
           disabled={isLoading}
         >

@@ -6,9 +6,10 @@ import { toast } from "sonner";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
+  redirectPath?: string;
 }
 
-const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
+const ProtectedRoute = ({ children, redirectPath = "/login" }: ProtectedRouteProps) => {
   const { isAuthenticated } = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
@@ -16,9 +17,12 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   useEffect(() => {
     if (!isAuthenticated) {
       toast.error("Please log in to access this page");
-      navigate("/login", { state: { from: location.pathname } });
+      // Save the current path so we can redirect back after login
+      navigate(redirectPath, { 
+        state: { from: location.pathname + location.search + location.hash } 
+      });
     }
-  }, [isAuthenticated, navigate, location]);
+  }, [isAuthenticated, navigate, location, redirectPath]);
 
   return isAuthenticated ? <>{children}</> : null;
 };
