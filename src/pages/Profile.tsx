@@ -1,4 +1,3 @@
-
 import { useContext, useState } from "react";
 import { AuthContext } from "@/App";
 import Navbar from "@/components/Navbar";
@@ -9,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
-import { LinkBankAccount } from "@/components/PlaidLink";
+import PlaidLink from "@/components/PlaidLink";
 import { Shield, User, CreditCard, BellRing, Settings, LockKeyhole } from "lucide-react";
 
 const Profile = () => {
@@ -70,6 +69,11 @@ const Profile = () => {
     }));
     
     toast.success(`${type} notifications ${notificationsEnabled[type as keyof typeof notificationsEnabled] ? 'disabled' : 'enabled'}`);
+  };
+
+  const handlePlaidSuccess = (publicToken: string, metadata: any) => {
+    console.log("Plaid connection successful!", publicToken, metadata);
+    toast.success(`Connected to ${metadata.institution.name} successfully!`);
   };
 
   const userInitials = user?.name
@@ -176,7 +180,7 @@ const Profile = () => {
                           <p className="text-sm text-gray-500 mb-4">
                             Connect your bank accounts to automatically track your transactions and balances.
                           </p>
-                          <LinkBankAccount />
+                          <PlaidLink onSuccess={handlePlaidSuccess} className="w-full" />
                         </div>
                         
                         {/* Mock connected accounts */}
