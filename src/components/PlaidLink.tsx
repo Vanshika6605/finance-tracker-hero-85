@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { CreditCard, Link as LinkIcon } from "lucide-react";
@@ -21,6 +22,26 @@ interface PlaidLinkProps {
 const PlaidLink = ({ onSuccess, className, isBackendConnected = false }: PlaidLinkProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [linkToken, setLinkToken] = useState<string | null>(null);
+  const [plaidScriptLoaded, setPlaidScriptLoaded] = useState(false);
+
+  // Load Plaid Link script
+  useEffect(() => {
+    if (!window.Plaid && !document.getElementById('plaid-link-script')) {
+      const script = document.createElement('script');
+      script.id = 'plaid-link-script';
+      script.src = 'https://cdn.plaid.com/link/v2/stable/link-initialize.js';
+      script.async = true;
+      script.onload = () => setPlaidScriptLoaded(true);
+      document.body.appendChild(script);
+      return () => {
+        if (document.getElementById('plaid-link-script')) {
+          document.getElementById('plaid-link-script')?.remove();
+        }
+      };
+    } else if (window.Plaid) {
+      setPlaidScriptLoaded(true);
+    }
+  }, []);
 
   const generateLinkToken = async () => {
     try {
@@ -29,7 +50,10 @@ const PlaidLink = ({ onSuccess, className, isBackendConnected = false }: PlaidLi
       const token = await createLinkToken();
       setLinkToken(token);
       
-      if (isBackendConnected && window.Plaid) {
+      // Check if we have window.Plaid and the backend is configured
+      const useRealPlaid = plaidScriptLoaded && window.Plaid && localStorage.getItem("plaid_use_real_api") === "true";
+      
+      if (useRealPlaid) {
         openRealPlaidLink(token);
       } else {
         openMockPlaidLink(token);
@@ -59,6 +83,7 @@ const PlaidLink = ({ onSuccess, className, isBackendConnected = false }: PlaidLi
       },
       onLoad: () => {
         // The Link module finished loading.
+        console.log("Plaid Link loaded");
       },
       onExit: (err: any, metadata: any) => {
         // The user exited the Link flow.

@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { usePlaidLink } from "@/hooks/usePlaidLink";
-import { Settings, Server, CheckCircle, XCircle } from "lucide-react";
+import { Settings, Server, CheckCircle, XCircle, AlertTriangle } from "lucide-react";
 
 const PlaidConfig = () => {
   const [apiUrl, setApiUrl] = useState("http://localhost:8000/api");
@@ -94,6 +94,23 @@ const PlaidConfig = () => {
                   </p>
                 </div>
               </div>
+              
+              {!isBackendConnected && useRealApi && (
+                <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg flex items-start">
+                  <AlertTriangle className="h-5 w-5 text-yellow-500 mr-3 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="font-medium text-yellow-800">Warning: Using Mock Data</p>
+                    <p className="text-sm text-yellow-700 mt-1">
+                      Even though you've selected "Using Real API", you're still seeing mock data because:
+                    </p>
+                    <ul className="list-disc list-inside text-sm text-yellow-700 mt-2 space-y-1">
+                      <li>Your backend server may not be running</li>
+                      <li>The API URL might be incorrect</li>
+                      <li>Your backend server isn't properly configured with Plaid</li>
+                    </ul>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
           

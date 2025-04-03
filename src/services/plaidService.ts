@@ -1,4 +1,3 @@
-
 // This file provides both mock implementations and real API implementations
 // for Plaid integration. The real implementations will call your backend API.
 
@@ -54,6 +53,8 @@ const callBackendApi = async (endpoint: string, method: string = 'GET', data?: a
   }
 
   try {
+    console.log(`Making ${method} request to ${API_CONFIG.API_URL}/${endpoint}`, data);
+    
     const response = await fetch(`${API_CONFIG.API_URL}/${endpoint}`, {
       method,
       headers: {
@@ -64,10 +65,14 @@ const callBackendApi = async (endpoint: string, method: string = 'GET', data?: a
     });
 
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`API error: ${response.status} ${response.statusText}`, errorText);
       throw new Error(`API error: ${response.status} ${response.statusText}`);
     }
 
-    return await response.json();
+    const responseData = await response.json();
+    console.log(`API response from ${endpoint}:`, responseData);
+    return responseData;
   } catch (error) {
     console.error('API call failed:', error);
     throw error;
@@ -80,8 +85,14 @@ export const exchangePublicToken = async (publicToken: string): Promise<string> 
   
   // If real API is enabled, use it
   if (API_CONFIG.USE_REAL_API) {
-    const data = await callBackendApi('plaid/exchange_token', 'POST', { public_token: publicToken });
-    return data.access_token;
+    try {
+      const data = await callBackendApi('plaid/exchange_token', 'POST', { public_token: publicToken });
+      return data.access_token;
+    } catch (error) {
+      console.error("Failed to exchange token with real API:", error);
+      // If the real API fails, fall back to mock for demo purposes
+      console.warn("Falling back to mock implementation for token exchange");
+    }
   }
   
   // Otherwise use mock implementation
@@ -101,8 +112,14 @@ export const fetchAccounts = async (accessToken: string): Promise<PlaidAccount[]
   
   // If real API is enabled, use it
   if (API_CONFIG.USE_REAL_API) {
-    const data = await callBackendApi('plaid/accounts', 'POST', { access_token: accessToken });
-    return data.accounts;
+    try {
+      const data = await callBackendApi('plaid/accounts', 'POST', { access_token: accessToken });
+      return data.accounts;
+    } catch (error) {
+      console.error("Failed to fetch accounts with real API:", error);
+      // If the real API fails, fall back to mock for demo purposes
+      console.warn("Falling back to mock implementation for accounts");
+    }
   }
   
   // Otherwise use mock implementation
@@ -161,12 +178,18 @@ export const fetchTransactions = async (
   
   // If real API is enabled, use it
   if (API_CONFIG.USE_REAL_API) {
-    const data = await callBackendApi('plaid/transactions', 'POST', { 
-      access_token: accessToken,
-      start_date: startDate,
-      end_date: endDate
-    });
-    return data.transactions;
+    try {
+      const data = await callBackendApi('plaid/transactions', 'POST', { 
+        access_token: accessToken,
+        start_date: startDate,
+        end_date: endDate
+      });
+      return data.transactions;
+    } catch (error) {
+      console.error("Failed to fetch transactions with real API:", error);
+      // If the real API fails, fall back to mock for demo purposes
+      console.warn("Falling back to mock implementation for transactions");
+    }
   }
   
   // Otherwise use mock implementation
@@ -229,7 +252,9 @@ export const checkBackendConnection = async (): Promise<boolean> => {
   
   try {
     // Try to connect to the health endpoint
+    console.log(`Checking backend connection at ${API_CONFIG.API_URL}/health`);
     await callBackendApi('health');
+    console.log("Backend connection successful");
     return true;
   } catch (error) {
     console.error('Backend connection check failed:', error);
@@ -240,6 +265,8 @@ export const checkBackendConnection = async (): Promise<boolean> => {
 // Set API configuration - call this when initializing your app
 // with configuration from environment variables or similar
 export const configurePlaidApi = (useRealApi: boolean, apiUrl?: string) => {
+  console.log(`Configuring Plaid API: useRealApi=${useRealApi}, apiUrl=${apiUrl || API_CONFIG.API_URL}`);
+  
   API_CONFIG.USE_REAL_API = useRealApi;
   if (apiUrl) {
     API_CONFIG.API_URL = apiUrl;
@@ -250,9 +277,18 @@ export const configurePlaidApi = (useRealApi: boolean, apiUrl?: string) => {
 
 // Create a link token via the backend
 export const createLinkToken = async (): Promise<string> => {
+  console.log("Creating link token, useRealApi:", API_CONFIG.USE_REAL_API);
+  
   if (API_CONFIG.USE_REAL_API) {
-    const data = await callBackendApi('plaid/create_link_token', 'POST');
-    return data.link_token;
+    try {
+      const data = await callBackendApi('plaid/create_link_token', 'POST');
+      console.log("Received real link token:", data.link_token);
+      return data.link_token;
+    } catch (error) {
+      console.error("Failed to create link token with real API:", error);
+      // If the real API fails, fall back to mock for demo purposes
+      console.warn("Falling back to mock implementation for link token");
+    }
   }
   
   // Mock link token for development

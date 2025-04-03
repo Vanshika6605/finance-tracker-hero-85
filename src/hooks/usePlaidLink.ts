@@ -17,6 +17,7 @@ interface UsePlaidLinkResult {
   handlePlaidSuccess: (publicToken: string, metadata: PlaidLinkMetadata) => Promise<void>;
   refreshAccounts: () => Promise<void>;
   configureBackend: (useRealApi: boolean, apiUrl?: string) => void;
+  isRealApiEnabled: boolean;
 }
 
 // This hook manages the Plaid Link flow and account data
@@ -25,6 +26,7 @@ export const usePlaidLink = (): UsePlaidLinkResult => {
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [linkedAccounts, setLinkedAccounts] = useState<PlaidAccount[]>([]);
   const [isBackendConnected, setIsBackendConnected] = useState(false);
+  const [isRealApiEnabled, setIsRealApiEnabled] = useState(false);
 
   // Check if backend is connected on mount
   useEffect(() => {
@@ -32,6 +34,10 @@ export const usePlaidLink = (): UsePlaidLinkResult => {
       const connected = await checkBackendConnection();
       setIsBackendConnected(connected);
     };
+    
+    // Check if real API is enabled
+    const useRealApi = localStorage.getItem("plaid_use_real_api") === "true";
+    setIsRealApiEnabled(useRealApi);
     
     checkConnection();
   }, []);
@@ -51,6 +57,8 @@ export const usePlaidLink = (): UsePlaidLinkResult => {
   // Configure backend API
   const configureBackend = (useRealApi: boolean, apiUrl?: string) => {
     configurePlaidApi(useRealApi, apiUrl);
+    setIsRealApiEnabled(useRealApi);
+    
     checkBackendConnection()
       .then(connected => {
         setIsBackendConnected(connected);
@@ -128,6 +136,7 @@ export const usePlaidLink = (): UsePlaidLinkResult => {
     linkedAccounts,
     handlePlaidSuccess,
     refreshAccounts,
-    configureBackend
+    configureBackend,
+    isRealApiEnabled
   };
 };
