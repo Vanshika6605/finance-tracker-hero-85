@@ -1,4 +1,5 @@
 
+import React, { useState, createContext } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -11,9 +12,8 @@ import Dashboard from "./pages/Dashboard";
 import Transactions from "./pages/Transactions";
 import NotFound from "./pages/NotFound";
 import Profile from "./pages/Profile";
-import PlaidConfig from "./pages/PlaidConfig";  // Add this import
+import PlaidConfig from "./pages/PlaidConfig";
 import ProtectedRoute from "./components/ProtectedRoute";
-import { useState, createContext } from "react";
 
 export interface User {
   id: string;
@@ -35,7 +35,7 @@ export const AuthContext = createContext<AuthContextType>({
 
 const queryClient = new QueryClient();
 
-const App = () => {
+const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
 
   return (
@@ -73,7 +73,6 @@ const App = () => {
                   </ProtectedRoute>
                 } 
               />
-              {/* Add the new route for Plaid configuration */}
               <Route 
                 path="/plaid-config" 
                 element={
