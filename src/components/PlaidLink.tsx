@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { CreditCard, Link as LinkIcon } from "lucide-react";
 import { 
@@ -10,33 +9,31 @@ import {
   CardHeader, 
   CardTitle 
 } from "@/components/ui/card";
+import { createLinkToken } from "@/services/plaidService";
 import { toast } from "sonner";
 
-// Define the props for the PlaidLink component
 interface PlaidLinkProps {
   onSuccess: (public_token: string, metadata: any) => void;
   className?: string;
+  isBackendConnected?: boolean;
 }
 
-const PlaidLink = ({ onSuccess, className }: PlaidLinkProps) => {
+const PlaidLink = ({ onSuccess, className, isBackendConnected = false }: PlaidLinkProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [linkToken, setLinkToken] = useState<string | null>(null);
 
-  // Function to get a link token from our mock server
   const generateLinkToken = async () => {
     try {
       setIsLoading(true);
       
-      // In a real implementation, this would be an API call to your backend
-      // that would then call Plaid's create_link_token endpoint
-      setTimeout(() => {
-        // Mock link token - in reality this would come from your server
-        const mockLinkToken = "link-sandbox-" + Math.random().toString(36).substring(2, 15);
-        setLinkToken(mockLinkToken);
-        
-        // Simulate opening Plaid Link after getting the token
-        openMockPlaidLink(mockLinkToken);
-      }, 1000);
+      const token = await createLinkToken();
+      setLinkToken(token);
+      
+      if (isBackendConnected && window.Plaid) {
+        openRealPlaidLink(token);
+      } else {
+        openMockPlaidLink(token);
+      }
     } catch (error) {
       console.error("Error generating link token:", error);
       toast.error("Failed to connect to bank. Please try again.");
@@ -44,13 +41,47 @@ const PlaidLink = ({ onSuccess, className }: PlaidLinkProps) => {
     }
   };
 
-  // Function to simulate opening Plaid Link
+  const openRealPlaidLink = (token: string) => {
+    if (!window.Plaid) {
+      console.error("Plaid Link SDK not loaded");
+      toast.error("Plaid Link SDK not loaded");
+      setIsLoading(false);
+      return;
+    }
+
+    const handler = window.Plaid.create({
+      token,
+      onSuccess: (public_token: string, metadata: any) => {
+        onSuccess(public_token, metadata);
+        toast.success(`Connected to ${metadata?.institution?.name || 'bank'} successfully!`);
+        setIsLoading(false);
+        setLinkToken(null);
+      },
+      onLoad: () => {
+        // The Link module finished loading.
+      },
+      onExit: (err: any, metadata: any) => {
+        // The user exited the Link flow.
+        if (err) {
+          console.error("Plaid Link Error:", err, metadata);
+          toast.error("There was a problem connecting to your bank");
+        }
+        setIsLoading(false);
+        setLinkToken(null);
+      },
+      onEvent: (eventName: string, metadata: any) => {
+        // Optionally capture Link flow events
+        console.log("Plaid Link Event:", eventName, metadata);
+      },
+    });
+
+    handler.open();
+  };
+
   const openMockPlaidLink = (token: string) => {
-    console.log("Opening Plaid Link with token:", token);
+    console.log("Opening Mock Plaid Link with token:", token);
     
-    // Simulate a delay for "bank selection and login"
     setTimeout(() => {
-      // Mock user selecting and authenticating with a bank
       const mockPublicToken = "public-sandbox-" + Math.random().toString(36).substring(2, 15);
       const mockMetadata = {
         institution: { name: "Chase", institution_id: "ins_1" },
@@ -61,7 +92,6 @@ const PlaidLink = ({ onSuccess, className }: PlaidLinkProps) => {
         ]
       };
       
-      // In a real implementation, this success callback would be triggered by the Plaid Link SDK
       onSuccess(mockPublicToken, mockMetadata);
       toast.success("Connected to Chase Bank successfully!");
       setIsLoading(false);

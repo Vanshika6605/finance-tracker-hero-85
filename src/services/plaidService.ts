@@ -1,3 +1,4 @@
+
 // This file provides both mock implementations and real API implementations
 // for Plaid integration. The real implementations will call your backend API.
 
@@ -39,9 +40,9 @@ export interface PlaidTransaction {
 
 // Configuration for API endpoints
 const API_CONFIG = {
-  // Set this to true when you have a backend ready
+  // Set this to false by default, users can enable it when ready
   USE_REAL_API: false,
-  // Replace with your actual backend API URL when ready
+  // Default to localhost:8000, but can be configured
   API_URL: 'http://localhost:8000/api',
 };
 
@@ -227,6 +228,7 @@ export const checkBackendConnection = async (): Promise<boolean> => {
   }
   
   try {
+    // Try to connect to the health endpoint
     await callBackendApi('health');
     return true;
   } catch (error) {
@@ -244,4 +246,21 @@ export const configurePlaidApi = (useRealApi: boolean, apiUrl?: string) => {
   }
   
   console.log(`Plaid API configured: ${useRealApi ? 'Using real API' : 'Using mock API'}`);
+};
+
+// Create a link token via the backend
+export const createLinkToken = async (): Promise<string> => {
+  if (API_CONFIG.USE_REAL_API) {
+    const data = await callBackendApi('plaid/create_link_token', 'POST');
+    return data.link_token;
+  }
+  
+  // Mock link token for development
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const mockLinkToken = "link-sandbox-" + Math.random().toString(36).substring(2, 15);
+      console.log("Created mock link token:", mockLinkToken);
+      resolve(mockLinkToken);
+    }, 1000);
+  });
 };

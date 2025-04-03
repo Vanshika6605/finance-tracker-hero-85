@@ -11,6 +11,7 @@ import Dashboard from "./pages/Dashboard";
 import Transactions from "./pages/Transactions";
 import NotFound from "./pages/NotFound";
 import Profile from "./pages/Profile";
+import PlaidConfig from "./pages/PlaidConfig";  // Add this import
 import ProtectedRoute from "./components/ProtectedRoute";
 import { useState, createContext } from "react";
 
@@ -69,6 +70,15 @@ const App = () => {
                 element={
                   <ProtectedRoute>
                     <Profile />
+                  </ProtectedRoute>
+                } 
+              />
+              {/* Add the new route for Plaid configuration */}
+              <Route 
+                path="/plaid-config" 
+                element={
+                  <ProtectedRoute>
+                    <PlaidConfig />
                   </ProtectedRoute>
                 } 
               />
