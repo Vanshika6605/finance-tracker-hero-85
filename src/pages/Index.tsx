@@ -106,8 +106,8 @@ const Index = () => {
               <div className="relative mx-auto max-w-5xl rounded-xl bg-gray-900/5 p-3 shadow-2xl shadow-gray-500/10">
                 <div className="glass rounded-lg overflow-hidden">
                   <img
-                    src="https://placehold.co/1200x700/e6f4ff/0072f5?text=Dashboard+Preview"
-                    alt="Dashboard Preview"
+                    src="/dashboard-preview.png"
+                    alt="FinTrack Dashboard"
                     className="w-full"
                   />
                 </div>
