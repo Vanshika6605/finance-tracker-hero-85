@@ -25,9 +25,9 @@ const SpendingChart = ({ data, className }: SpendingChartProps) => {
   const [view, setView] = useState<"weekly" | "monthly" | "yearly">("monthly");
 
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('en-IN', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'INR',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(value);
