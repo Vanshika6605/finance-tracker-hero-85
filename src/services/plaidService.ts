@@ -1,6 +1,5 @@
-
-// This file simulates a service that would interact with your backend API,
-// which would in turn communicate with Plaid's API
+// This file provides both mock implementations and real API implementations
+// for Plaid integration. The real implementations will call your backend API.
 
 // Types for Plaid-related data
 export interface PlaidAccount {
@@ -38,30 +37,74 @@ export interface PlaidTransaction {
   account_id: string;
 }
 
-// Mock function to exchange a public token for an access token
-// In a real implementation, this would call your backend,
-// which would call Plaid's /item/public_token/exchange endpoint
+// Configuration for API endpoints
+const API_CONFIG = {
+  // Set this to true when you have a backend ready
+  USE_REAL_API: false,
+  // Replace with your actual backend API URL when ready
+  API_URL: 'http://localhost:8000/api',
+};
+
+// Function to call your backend API
+const callBackendApi = async (endpoint: string, method: string = 'GET', data?: any) => {
+  if (!API_CONFIG.USE_REAL_API) {
+    console.warn('Using mock API implementation. Set USE_REAL_API to true when backend is ready.');
+    return null;
+  }
+
+  try {
+    const response = await fetch(`${API_CONFIG.API_URL}/${endpoint}`, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: data ? JSON.stringify(data) : undefined,
+      credentials: 'include', // Include cookies for session-based auth if needed
+    });
+
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status} ${response.statusText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('API call failed:', error);
+    throw error;
+  }
+};
+
+// Exchange a public token for an access token
 export const exchangePublicToken = async (publicToken: string): Promise<string> => {
   console.log("Exchanging public token:", publicToken);
   
-  // Simulate API call
+  // If real API is enabled, use it
+  if (API_CONFIG.USE_REAL_API) {
+    const data = await callBackendApi('plaid/exchange_token', 'POST', { public_token: publicToken });
+    return data.access_token;
+  }
+  
+  // Otherwise use mock implementation
   return new Promise((resolve) => {
     setTimeout(() => {
       // Mock access token - in reality this would come from Plaid via your backend
       const mockAccessToken = "access-sandbox-" + Math.random().toString(36).substring(2, 15);
-      console.log("Received access token:", mockAccessToken);
+      console.log("Received mock access token:", mockAccessToken);
       resolve(mockAccessToken);
     }, 1000);
   });
 };
 
-// Mock function to fetch accounts for a user
-// In a real implementation, this would call your backend,
-// which would call Plaid's /accounts/get endpoint
+// Fetch accounts for a user
 export const fetchAccounts = async (accessToken: string): Promise<PlaidAccount[]> => {
   console.log("Fetching accounts with access token:", accessToken);
   
-  // Simulate API call
+  // If real API is enabled, use it
+  if (API_CONFIG.USE_REAL_API) {
+    const data = await callBackendApi('plaid/accounts', 'POST', { access_token: accessToken });
+    return data.accounts;
+  }
+  
+  // Otherwise use mock implementation
   return new Promise((resolve) => {
     setTimeout(() => {
       // Mock accounts data
@@ -107,18 +150,25 @@ export const fetchAccounts = async (accessToken: string): Promise<PlaidAccount[]
   });
 };
 
-// Mock function to fetch transactions for a user
-// In a real implementation, this would call your backend,
-// which would call Plaid's /transactions/get endpoint
+// Fetch transactions for a user
 export const fetchTransactions = async (
   accessToken: string,
   startDate: string,
   endDate: string
 ): Promise<PlaidTransaction[]> => {
   console.log("Fetching transactions with access token:", accessToken);
-  console.log("Date range:", startDate, "to", endDate);
   
-  // Simulate API call
+  // If real API is enabled, use it
+  if (API_CONFIG.USE_REAL_API) {
+    const data = await callBackendApi('plaid/transactions', 'POST', { 
+      access_token: accessToken,
+      start_date: startDate,
+      end_date: endDate
+    });
+    return data.transactions;
+  }
+  
+  // Otherwise use mock implementation
   return new Promise((resolve) => {
     setTimeout(() => {
       // Generate mock transactions
@@ -168,4 +218,30 @@ export const fetchTransactions = async (
       resolve(mockTransactions);
     }, 1500);
   });
+};
+
+// Check if the backend API is configured and available
+export const checkBackendConnection = async (): Promise<boolean> => {
+  if (!API_CONFIG.USE_REAL_API) {
+    return false;
+  }
+  
+  try {
+    await callBackendApi('health');
+    return true;
+  } catch (error) {
+    console.error('Backend connection check failed:', error);
+    return false;
+  }
+};
+
+// Set API configuration - call this when initializing your app
+// with configuration from environment variables or similar
+export const configurePlaidApi = (useRealApi: boolean, apiUrl?: string) => {
+  API_CONFIG.USE_REAL_API = useRealApi;
+  if (apiUrl) {
+    API_CONFIG.API_URL = apiUrl;
+  }
+  
+  console.log(`Plaid API configured: ${useRealApi ? 'Using real API' : 'Using mock API'}`);
 };
